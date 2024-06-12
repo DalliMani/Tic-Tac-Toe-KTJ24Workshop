@@ -8,14 +8,27 @@
     </head>
     <body>
         <div class="title-box">
-            <img src="game_icon.svg" alt="GAME_ICON"/>
+            <img src="./assets/game_icon.svg" alt="GAME_ICON"/>
             <header>Tic-Tac-Toe</header>
             <h2>By: Dalli Manideep</h2>
         </div>
        
-        <div class="game-board" id="game-board">
-            
+        <div class="game-container" id="game-container">
+            <div class="turn-box">
+                <img src="./assets/cross.png" alt="cross">
+                <img src="./assets/circle.png" alt="circle">
+            </div>
+            <div class="game-matrix" id="game-matrix"></div>
+            <div class="score-container" id="score-container"></div>
+            <div id="reset-game-container">
+                <button type="button" id="reset-board">Reset</button>
+            </div>
+        </div>
+        
+        <div id="reset-fullgame">
+            <button type="button" id="reset-board">Reset Game</button>
         </div>
 
+        <script src="script.js"></script>
     </body>
 </html>
