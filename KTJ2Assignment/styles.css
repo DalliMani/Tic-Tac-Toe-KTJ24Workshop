@@ -49,3 +49,13 @@
 .reset-full-game{
     align-content: center;
 }
+
+.turn-box :not(.active-indicator){
+    padding: 0.5rem;
+}
+
+.active-indicator{
+    border: 0.5rem rgb(53, 160, 254);
+    border-style: solid;
+    border-radius: 0.25rem;
+}

@@ -16,18 +16,18 @@
        </div>
         <div class="game-container" id="game-container">
             <div class="turn-box">
-                <img src="./assets/cross.png" alt="cross">
-                <img src="./assets/circle.png" alt="circle">
+                <img src="./assets/cross.png" alt="cross" id="cross-indicator" >
+                <img src="./assets/circle.png" alt="circle" id="circle-indicator">
             </div>
             <div class="game-matrix" id="game-matrix"></div>
             <div class="score-container" id="score-container"></div>
             <div id="reset-game-container">
-                <button type="button" id="reset-board">Reset</button>
+                <button type="button" id="reset-board" onclick="resetGame()">Reset</button>
             </div>
         </div>
         
-        <div id="reset-fullgame">
-            <button type="button" id="reset-board">Reset Game</button>
+        <div id="reset-fullgame-container">
+            <button type="button" id="reset-fullgame">Reset Game</button>
         </div>
 
         <script src="script.js"></script>
