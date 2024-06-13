@@ -22,9 +22,17 @@ function randInt(min, max) {
 let Player1= new Player(0,"Player 1",randInt(0,2));
 let Player2= new Player(1,"Player 2",Player1.choice ? 0:1);
 
+let Player1_Score=0,Player2_Score=0;
+
 //We will use the currentPlayer to keep track of whose turn it is now and whose next
 //Implementation of player 1 coming first
 let currentPlayer=Player1;
+
+//Before we move onto the table it would be helpful to keep a removeAllEventListeners function
+function replaceWithClone(NodeElement){
+    NodeElement.replaceWith(NodeElement.cloneNode(true));
+}
+const removeAllEventListeners=replaceWithClone;
 
 //We will use table implementation of tictactoe. (Interesting Note is that until game-table generation it's all independednt of currentPlayer)
 //-1 means empty cell, 0 represents circle and 1 represents cross
@@ -65,11 +73,7 @@ function renderEmptyGameMatrix(gameMatrix,parentNode){
             cellContent.src='./assets/blank.png';
             cellContent.alt='A';
 
-            cellContent.addEventListener('click',()=>{
-                changeTile(i,j);
-                changeIndicator();
-                changeCurrentPlayer();
-            })
+            cellContent.addEventListener('click',makeTurnWrapper(i,j));
             
             cell.appendChild(cellContent);
 
@@ -95,8 +99,13 @@ function getCell(tableNode,index_i=0,index_j=0){
     return getRow(tableNode,index_i).querySelectorAll('td')[index_j];
 }
 
+function getGameTable(){
+    return document.querySelector('#game-table');
+}
+//Rendering done using functions
 renderEmptyGameMatrix(gameMatrix,document.getElementById('game-matrix'));
-gameTable=document.querySelector('#game-table');
+let gameTable=getGameTable();
+
 
 //The above part is for generation of game-matrix etc.
 //Now let's add player mechanics
@@ -104,7 +113,7 @@ function getCurrentTurn(){
     return currentPlayer.choice;
 }
 
-function changeTileHelper(i,j,newTileValue) {
+function changeTileHelper(i,j,newTileValue,gameTable) {
     //newTileValue refers to newTileValue of cell which is being changed. Refer to gameMatrix defn for state usage
     gameMatrix[i][j] = newTileValue;
     let tileCell= getCell(gameTable,i,j);
@@ -117,7 +126,7 @@ function changeTileHelper(i,j,newTileValue) {
 }
 
 function changeTile(i,j){
-    changeTileHelper(i,j,getCurrentTurn());
+    changeTileHelper(i,j,getCurrentTurn(),gameTable);
 }
 
 //This changes the indicator to cross if choice given is 1 and circle if choice given is 0.
@@ -148,9 +157,155 @@ function changeCurrentPlayer(){
     else currentPlayer=Player1;
 }
 
-function resetGame(){
+function resetMatch(){
+    //Resetting global variable gameMatrix
     gameMatrix=genEmptyGameMatrix(3);
-    const gameMatrixElement=document.getElementById('game-matrix');
-    gameMatrixElement.innerHTML='';//Making the game matrix empty again
-    renderEmptyGameMatrix(gameMatrix,gameMatrix);
+    const gameMatrixDiv=document.getElementById('game-matrix');
+    gameMatrixDiv.innerHTML='';//Making the game matrix empty again
+    renderEmptyGameMatrix(gameMatrix,gameMatrixDiv);
+    //changeTile relies on global variable gameTable which got nullified due to previous emptying of gameMatrixDiv
+    gameTable=getGameTable();
+}
+
+initIndicator();
+
+//Now let's apply styles onto the table
+//Basically I will be adding classes to the cells now, like in-topmost, in-rightmost, in-leftmost, and in-bottommost
+//Also, our assumption of a square is still hardcoded despite there being no necessity of a square.
+function styleTable(tableNode,N_size_gamematrix){
+    let topCell,bottomCell,leftCell,rightCell;
+    for (let j=0;j<N_size_gamematrix;++j){
+        topCell=getCell(tableNode,0,j);
+        topCell.classList.add('in-topmost');
+        bottomCell=getCell(tableNode,N_size_gamematrix-1,j);
+        bottomCell.classList.add('in-bottommost');
+    }
+    for (let i=0;i<N_size_gamematrix;++i){
+        leftCell=getCell(tableNode,i,0);
+        leftCell.classList.add('in-leftmost');
+        rightCell=getCell(tableNode,i,N_size_gamematrix-1);
+        rightCell.classList.add('in-rightmost');
+    }
+}
+styleTable(gameTable,3);
+
+
+//To check the winning condititons, we need to check if there's a row or column or diagonal with the same value.
+//For that let's write is___All functions which return is an entire row, column or diagonal has the value given, provided the index of row, column, or diagonal. Diagonal index will be explained near getNumberOfElementsInDiagonal.
+//There's another possibility of implementation where we check if entire row has the same value or not if the row is uniform, then we declare the player with the choice same as that row's elements as the winner. But I think writing this way would be convenient, deespite it's inefficiency.
+function isRowAll(value,row_index,Matrix){
+
+    const row_size=Matrix[0].length;
+    for (let j=0;j<row_size;++j){
+        if (Matrix[row_index][j]!=value) return false;
+    }
+    return true;
+}
+function isColAll(value,col_index,Matrix){
+
+    const col_size=Matrix.length;
+    for (let i=0;i<col_size;++i){
+        if (Matrix[col_index][i]!=value) return false;
+    }
+    return true;
+}
+
+//Let's discuss what the diagonal index is.
+//Every square matrix has 2*(2N+1) diagonals and each diagonal can be characterized using one of it's end-elements
+//Also, in that 2*(2N+1) diagonals, 2N+1 are left, like, '\'. And 2N+1 are right, like '/'.
+//Standard keys for right diagonals are M[0][0],M[1][0]...,M[col_size-1][0]  (basically 0th col), M[col_size-1][1],M[col_size-1][2]...M[col_size-1][row_size-1] (basically the last row) and for these standard keys for right, we move up the diagonal
+//Standard keys for left diagonals are M[0][0],M[1][0]...,M[col_size-1][0] (basically 0th col), M[0][1],M[0][2]...M[0][row_size-1] (basically the 0th row)... and for these standard keys for left, we move down the diagonal
+function isValidIndex(i,j,Matrix){
+    return (i>=0)&&(i<Matrix[0].length)&&(j>=0)&&(j<Matrix.length);
+}
+
+function isRightDiagonalAll(value,key_index_i,key_index_j,Matrix){
+    let i=key_index_i,j=key_index_j;
+    
+    while (isValidIndex(i,j,Matrix)){
+        if (Matrix[i][j]!=value) return false;
+        //We move "UP" the "RIGHT" diagonal
+        i-=1;
+        j+=1;
+    }
+    return true;
+}
+function isLeftDiagonalAll(value,key_index_i,key_index_j,Matrix){
+    let i=key_index_i,j=key_index_j;
+    
+    while (isValidIndex(i,j,Matrix)){
+        if (Matrix[i][j]!=value) return false;
+        //We move "DOWN" the "LEFT" diagonal
+        i+=1;
+        j+=1;
+    }
+    return true;
+}
+
+function isWinner(player,gameMatrix){
+    playerChoice=player.choice;
+    let row_size=gameMatrix[0].length, col_size=gameMatrix.length;
+    
+    //Checking rows
+    for (let i=0;i<col_size;++i){
+        if (isRowAll(playerChoice,i,gameMatrix)) return true;
+    }
+    
+    //Checking cols
+    for (let j=0;j<row_size;++j){
+        if (isColAll(playerChoice,j,gameMatrix)) return true;
+    }
+
+    //checking all the right diagonals and left diagonals with keys on first column
+    for (let i=0;i<col_size;++i){
+        if (isLeftDiagonalAll(playerChoice,i,0,gameMatrix)) return true;
+        if (isRightDiagonalAll(playerChoice,i,0,gameMatrix)) return true;
+    }
+
+    //Checking all keys of right and left diagonals in a row.
+    for (let j=1;j<row_size;++j){
+        if (isLeftDiagonalAll(playerChoice,0,j,gameMatrix)) return true;
+        if (isRightDiagonalAll(playerChoice,col_size-1,j,gameMatrix)) return true;
+    }
+
+    return false;
+}
+
+//A match is considered over if all elements of gameMatrix are 0 or 1. i.e. if all elements are "non -1".
+function isMatchOver(gameMatrix){
+    //Following is a bool of whether every element is "non -1" or not, basically, checking if -1 is not-there(true) or thre (false).
+    return gameMatrix.every(row => row.every( elem => (elem!=-1)));
+}
+
+function getWinStatus(){
+    //winStatus of 0 indicates player 1 has won, 1 indicates player 2 has won, 2 indicates a draw, -1 indicates neither has won
+    if (isWinner(Player1,gameMatrix)) return 0;
+    if (isWinner(Player2,gameMatrix)) return 1;
+    if (isMatchOver(gameMatrix)) return 2;
+    return -1;
+}
+
+function makeTurnWrapper(i,j){
+    //Returns the function to be executed when a cell is clicked
+
+    const makeTurn= ()=>{
+        changeTile(i,j);
+        /*
+        const winStatus=getWinStatus();
+        console.log(`Winstatus: ${winStatus}`)
+        if (winStatus==0){
+            Player1_Score++;
+            removeAllEventListeners(document.querySelector('#game-table'));//Make the board irresponsive
+            setTimeout(resetMatch,5000);//Reset match in 5 seconds
+        }
+        if (winStatus==1){
+            Player2_Score++;
+            removeAllEventListeners
+        }
+        */
+        changeIndicator();
+        changeCurrentPlayer();
+    }
+
+    return makeTurn;
 }
