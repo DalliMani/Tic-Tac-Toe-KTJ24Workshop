@@ -27,9 +27,17 @@ function initPlayers(){
     currentPlayer=Player1;
 }
 function initPlayerScores(){
-    Player1_Score=Player2_Score=0;
+    if (localStorage.getItem('TicTacToeScore_Player1')==null)
+        localStorage.setItem('TicTacToeScore_Player1',0);
+    if (localStorage.getItem('TicTacToeScore_Player2')==null)
+        localStorage.setItem('TicTacToeScore_Player2',0);
 }
-initPlayers();
+function resetPlayerScores(){
+    if (localStorage.TicTacToeScore_Player1!=null)
+        localStorage.TicTacToeScore_Player1=0;
+    if (localStorage.TicTacToeScore_Player2!=null)
+        localStorage.TicTacToeScore_Player2=0;
+}
 initPlayerScores();
 //We will use the currentPlayer to keep track of whose turn it is now and whose next
 //Implementation of player 1 coming first
@@ -44,6 +52,7 @@ const removeAllEventListeners=replaceWithClone;
 //We will use table implementation of tictactoe. (Interesting Note is that until game-table generation it's all independednt of currentPlayer)
 //-1 means empty cell, 0 represents circle and 1 represents cross
 let gameMatrix; //This is the global matrix which contains the data of the matrix in number format
+let gameTable;
 //Creates an empty genEmptyGameMatrix
 function genEmptyGameMatrix(N){
     let gameMatrix=[];
@@ -64,7 +73,7 @@ function genEmptyGameMatrix(N){
 }
 
 gameMatrix=genEmptyGameMatrix(3);
-
+initMatch(); //Defined much later
 
 //In this function, we assume gameMatrix is always a square, which can be easily modified btw
 //Also, this renders empty matrix as you can see, because each individual modification can be carried by a function
@@ -118,10 +127,6 @@ function getCell(tableNode,index_i=0,index_j=0){
 function getGameTable(){
     return document.querySelector('#game-table');
 }
-//Rendering done using functions
-renderEmptyGameMatrix(gameMatrix,document.getElementById('game-matrix'));
-let gameTable=getGameTable();
-
 
 //The above part is for generation of game-matrix etc.
 //Now let's add player mechanics
@@ -173,18 +178,38 @@ function changeCurrentPlayer(){
     else currentPlayer=Player1;
 }
 
-function resetMatch(){
+function initMatch(){
+    initPlayers();
+    initIndicator();
+    //Rendering done using functions
+    renderEmptyGameMatrix(gameMatrix,document.getElementById('game-matrix'));
+    gameTable=getGameTable();//Making the global gametable as the current gameTable.
+    updateScoreHTML();
+
+    /* Note that intiMatch() is used everytime the match is reset AND also when the game is inititalised. 
+    Despite realising it late, I think it's pretty obvious that every action done at the first instance of the game has to be somewhat repeated everytime the game is reset and hence, all starts of match are identical. Well, to drive this point into the mind, consider the following comments I had written in resetMatch before.
+    Currently, the gameMatrix=genEmptyMatrix(3) or (N) isn't present but it will soon be included under the initMatch() after I create the input element for entering N
+
     //Resetting global variable gameMatrix
     gameMatrix=genEmptyGameMatrix(3);
-    const gameMatrixDiv=document.getElementById('game-matrix');
-    gameMatrixDiv.innerHTML='';//Making the game matrix empty again
     renderEmptyGameMatrix(gameMatrix,gameMatrixDiv);
     //changeTile relies on global variable gameTable which got nullified due to previous emptying of gameMatrixDiv
     gameTable=getGameTable();
     initPlayers();
+    */
+}
+function resetMatch(){
+    const gameMatrixDiv=document.getElementById('game-matrix');
+    gameMatrixDiv.innerHTML='';//Making the game matrix empty again
+    //Resetting global variable gameMatrix
+    gameMatrix=genEmptyGameMatrix(3);
+    initMatch();
 }
 
-initIndicator();
+function resetGame(){
+    resetPlayerScores();
+    resetMatch();
+}
 
 //Now let's apply styles onto the table
 //Basically I will be adding classes to the cells now, like in-topmost, in-rightmost, in-leftmost, and in-bottommost
@@ -211,6 +236,7 @@ function toStringMatrix(Matrix){
     return `{${Matrix.join(",")}}`;
 }
 const gameMatrixString= () => toStringMatrix(gameMatrix) ;
+
 //To check the winning condititons, we need to check if there's a row or column or diagonal with the same value.
 //For that let's write is___All functions which return is an entire row, column or diagonal has the value given, provided the index of row, column, or diagonal (main diags only).
 //There's another possibility of implementation where we check if entire row has the same value or not if the row is uniform, then we declare the player with the choice same as that row's elements as the winner. But I think writing this way would be convenient, deespite it's inefficiency.
@@ -226,7 +252,7 @@ function isColAll(value,col_index,Matrix){
 
     const col_size=Matrix.length;
     for (let i=0;i<col_size;++i){
-        if (Matrix[col_index][i]!=value) return false;
+        if (Matrix[i][col_index]!=value) return false;
     }
     return true;
 }
@@ -292,9 +318,17 @@ function getWinStatus(){
     return -1;
 }
 
+function updateScoreHTML(){
+    const player1ScoreBox=document.getElementById("player1-score-container");
+    const player2ScoreBox=document.getElementById("player2-score-container");
+    player1ScoreBox.innerText=localStorage.TicTacToeScore_Player1;
+    player2ScoreBox.innerText=localStorage.TicTacToeScore_Player2;
+}
+
 function updateScore(playerID){//Though I have hardcoded the ids in == statements, they can be replaced by Playerx.id
-    if (playerID==0) Player1_Score++;
-    else if (playerID==1) Player2_Score++;
+    if (playerID==0) localStorage.TicTacToeScore_Player1++;
+    else if (playerID==1) localStorage.TicTacToeScore_Player2++;
+    updateScoreHTML();
 }
 
 function makeTurnWrapper(i,j){

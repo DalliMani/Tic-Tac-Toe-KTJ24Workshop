@@ -11,9 +11,9 @@
             <img src="./assets/game_icon.svg" alt="GAME_ICON"/>
             <header>Tic-Tac-Toe</header>
         </div>
-       <div class="subtitle-box">
+        <div class="subtitle-box">
             <h2>By: Dalli Manideep</h2>
-       </div>
+        </div>
         <div class="game-container" id="game-container">
             <div class="turn-box">
                 <img src="./assets/cross.png" alt="cross" id="cross-indicator" >
@@ -21,21 +21,25 @@
             </div>
             <div class="game-matrix" id="game-matrix"></div>
             <div class="score-container" id="score-container">
-                <div class="player-name-container">
-                    Player 1
+                <div class="player-names-box">
+                    <div class="player-name-container">
+                        Player 1
+                    </div>
+                    <div class="player-name-container">
+                        Player 2
+                    </div>
                 </div>
-                <div class="player-name-container">
-                    Player 2
+                <div class="player-scores-box">
+                    <div class="player-score-container" id="player1-score-container"></div>
+                    <div class="player-score-container" id="player2-score-container"></div>
                 </div>
-                <div class="player-score-container" id="player1-score-container"></div>
-                <div class="player-score-container" id="player2-score-container"></div>
             </div>
         </div>
         <div id="reset-game-container">
             <button type="button" id="reset-board" onclick="resetMatch()">Reset</button>
         </div>
         <div id="reset-fullgame-container">
-            <button type="button" id="reset-fullgame">Reset Game</button>
+            <button type="button" id="reset-fullgame" onclick="resetGame()">Reset Game</button>
         </div>
 
         <script src="script.js"></script>
