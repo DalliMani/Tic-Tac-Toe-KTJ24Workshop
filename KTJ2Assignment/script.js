@@ -201,6 +201,7 @@ function initMatch(){
 function resetMatch(){
     const gameMatrixDiv=document.getElementById('game-matrix');
     gameMatrixDiv.innerHTML='';//Making the game matrix empty again
+    removeWinDeclarations();//We remove the declarations before starting again
     //Resetting global variable gameMatrix
     gameMatrix=genEmptyGameMatrix(3);
     initMatch();
@@ -323,12 +324,35 @@ function updateScoreHTML(){
     const player2ScoreBox=document.getElementById("player2-score-container");
     player1ScoreBox.innerText=localStorage.TicTacToeScore_Player1;
     player2ScoreBox.innerText=localStorage.TicTacToeScore_Player2;
+
+    //Now we add leading-score class to highlight who's ahead
+    //First let's directly remove any leading-score classes if-present, because we don't know who's going to be at lead now
+    //Btw, no check is needed to see if the leadin-score is present in the classList because even if not present .remove doesn't throw an error
+    player1ScoreBox.classList.remove('leading-score');
+    player2ScoreBox.classList.remove('leading-score');
+    if (Number(localStorage.TicTacToeScore_Player1)>Number(localStorage.TicTacToeScore_Player2))
+        player1ScoreBox.classList.add('leading-score')
+    else if (Number(localStorage.TicTacToeScore_Player2)>Number(localStorage.TicTacToeScore_Player1))
+        player2ScoreBox.classList.add('leading-score')
 }
 
 function updateScore(playerID){//Though I have hardcoded the ids in == statements, they can be replaced by Playerx.id
     if (playerID==0) localStorage.TicTacToeScore_Player1++;
     else if (playerID==1) localStorage.TicTacToeScore_Player2++;
     updateScoreHTML();
+}
+
+function putWinDeclaration(winnerName,afterNode=document.getElementById('reset-game-container')){
+    const winnerBox=document.createElement('div');
+    const winnerText=`${winnerName} has won the match!!`;
+    winnerBox.className='win-declaration-container';
+    winnerBox.innerText=winnerText;
+    document.body.insertBefore(winnerBox,afterNode);
+}
+
+function removeWinDeclarations(){
+    //Removes all winner declarations (which should ideally be 1)
+   document.querySelectorAll('.win-declaration-container').forEach((winnerBox)=> {winnerBox.remove();})
 }
 
 function makeTurnWrapper(i,j){
@@ -341,8 +365,10 @@ function makeTurnWrapper(i,j){
         //console.log(`Winstatus: ${winStatus}`)
         if (winStatus==0){
             updateScore(Player1.id);//I could have written 0 directly, but more readability
+            putWinDeclaration(Player1.name);
         } else if (winStatus==1){
             updateScore(Player2.id);
+            putWinDeclaration(Player2.name);
         }
 
         if ((winStatus==0)||(winStatus==1)||(winStatus==2)){ //Could've made it more efficient by winStatus!=-1 but this more readable
