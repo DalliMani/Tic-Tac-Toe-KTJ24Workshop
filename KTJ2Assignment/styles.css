@@ -1,9 +1,19 @@
 
+body{
+    background-color: rgb(251, 255, 0);
+}
 .title-box{
     display: flex;
     flex-direction: row;
+    align-items: center;
+    justify-content: center;
 }
 
+.subtitle-box{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 .title-box img{
     height: 4.5rem;
     width: 4.5rem;
@@ -30,14 +40,16 @@
     width: 4.5rem;
 }
 
+#game-matrix{
+    align-self: center;
+}
+
 .game-matrix td{
     height: 1rem;
     width: 1rem;
     /* padding: 1rem; */
     text-align: center;
 }
-
-
 
 .game-matrix :not(.in-topmost) td{
     border-top: 3px solid;
@@ -62,20 +74,22 @@ table{
     width: 2.5rem;
 }
 
-.game-container #reset-game-container{
-    flex: none;
-}
-
-.reset-full-game{
-    align-content: center;
+#reset-fullgame-container, 
+#reset-game-container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 0.4rem;
 }
 
 .turn-box :not(.active-indicator){
-    padding: 0.5rem;
+    padding: 0.2rem;
 }
 
 .active-indicator{
-    border: 0.5rem rgb(53, 160, 254);
+    background-color: lightblue;
+    border: 0.15rem rgb(53, 160, 254);
     border-style: solid;
     border-radius: 0.25rem;
 }
