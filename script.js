@@ -419,6 +419,6 @@ confirmModalBtn1.addEventListener('click',()=>{
 addModalOpenClose(modal2,overlay,openModalBtn2,closeModalBtn2);
 confirmModalBtn2.addEventListener('click',()=>{
     resetGame();
-    modal1.classList.add("hidden");
+    modal2.classList.add("hidden");
     overlay.classList.add('hidden');
 });
