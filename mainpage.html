@@ -38,11 +38,38 @@
             </div>
         </div>
         <div id="reset-game-container">
-            <button type="button" id="reset-board" onclick="resetMatch()">Reset</button>
+            <button class="button open-modal" id="reset-board">Reset</button>
         </div>
+        <section class="modal hidden" id="reset-board-modal">
+            <div class="flex">
+                <img src="./assets/game_icon.svg" alt="TIC" height="1rem" width="1rem">
+                <button class="btn-close" id="btn-close-1">⨉</button>
+            </div>
+            <div>
+                <h3>Reset the game?</h3>
+                <p>
+                    Are you sure you want to reset the game?
+                </p>
+                <button class="button btn-func" id="confirm-reset-board">Confirm</button>
+            </div>
+        </section>
+        <div class="overlay hidden"></div>
         <div id="reset-fullgame-container">
-            <button type="button" id="reset-fullgame" onclick="resetGame()">Reset Game</button>
+            <button type="button" class="button open-modal" id="reset-fullgame">Reset Game</button>
         </div>
+        <section class="modal hidden" id="reset-fullgame-modal">
+            <div class="flex">
+                <img src="./assets/game_icon.svg" alt="TIC" height="1rem" width="1rem">
+                <button class="btn-close" id="btn-close-2">⨉</button>
+            </div>
+            <div>
+                <h3>Reset the game <b>and</b> scorecard?</h3>
+                <p>
+                    Are you sure you want to reset the game <b>and</b> scoreboard?
+                </p>
+                <button class="button btn-func" id="confirm-reset-fullgame">Confirm</button>
+            </div>
+        </section>
 
         <script src="script.js"></script>
     </body>

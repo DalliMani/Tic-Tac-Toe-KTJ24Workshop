@@ -344,9 +344,11 @@ function updateScore(playerID){//Though I have hardcoded the ids in == statement
 
 function putWinDeclaration(winnerName,afterNode=document.getElementById('reset-game-container')){
     const winnerBox=document.createElement('div');
-    const winnerText=`${winnerName} has won the match!!`;
     winnerBox.className='win-declaration-container';
-    winnerBox.innerText=winnerText;
+    const winnerText=`${winnerName} has won the match!!`;
+    const winnerTextElement=document.createElement('h2');
+    winnerTextElement.innerText=winnerText;
+    winnerBox.appendChild(winnerTextElement);
     document.body.insertBefore(winnerBox,afterNode);
 }
 
@@ -383,3 +385,40 @@ function makeTurnWrapper(i,j){
 
     return makeTurn;
 }
+
+const overlay = document.querySelector(".overlay");
+
+const modal1 = document.querySelector("#reset-board-modal");
+const openModalBtn1 = document.querySelector("#reset-board");
+const closeModalBtn1 = document.querySelector("#btn-close-1");
+const confirmModalBtn1 = document.querySelector("#confirm-reset-board");
+
+const modal2 = document.querySelector("#reset-fullgame-modal");
+const openModalBtn2 = document.querySelector("#reset-fullgame");
+const closeModalBtn2 = document.querySelector("#btn-close-2");
+const confirmModalBtn2 = document.querySelector("#confirm-reset-fullgame");
+
+function addModalOpenClose(modalNode,overlayNode,openModalBtn,closeModalBtn){
+    openModalBtn.addEventListener('click',()=>{
+        modalNode.classList.remove("hidden");
+        overlayNode.classList.remove('hidden');
+    });
+    closeModalBtn.addEventListener('click',()=>{
+        modalNode.classList.add("hidden");
+        overlayNode.classList.add('hidden');
+    });
+}
+
+addModalOpenClose(modal1,overlay,openModalBtn1,closeModalBtn1);
+confirmModalBtn1.addEventListener('click',()=>{
+    resetMatch();
+    modal1.classList.add("hidden");
+    overlay.classList.add('hidden');
+});
+
+addModalOpenClose(modal2,overlay,openModalBtn2,closeModalBtn2);
+confirmModalBtn2.addEventListener('click',()=>{
+    resetGame();
+    modal1.classList.add("hidden");
+    overlay.classList.add('hidden');
+});
